@@ -130,7 +130,7 @@ def find_client(conn, first_name=None, last_name=None, email=None, phone=None):
             print("К сожалению, Вы ввели неправильную команду, пожалуйста, повторите ввод")
 
 
-with psycopg2.connect(host ="localhost", database="clients_db", user="postgres", password="postgres", port = "5432") as conn:
+with psycopg2.connect(host="localhost", database="postgres", user="postgres", password="12345678", port="5432") as conn:
     with conn.cursor() as cur:
         create_db(cur)
         add_client(cur, "Иван", "Петров", "petrov@bk.ru")
