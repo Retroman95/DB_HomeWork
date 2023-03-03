@@ -2,11 +2,11 @@ import psycopg2
 
 # Функция, создающая структуру БД (таблицы)
 def create_db(co):
-    cur.execute("""
+    curs.execute("""
     DROP TABLE phones;
     DROP TABLE clients;
     """)
-    cur.execute("""
+    curs.execute("""
     CREATE TABLE IF NOT EXISTS clients(
         id  SERIAL PRIMARY KEY,
         name VARCHAR(55) NOT NULL,
@@ -25,12 +25,12 @@ def create_db(co):
 
 # Функция, позволяющая добавить нового клиента
 def add_client(conn, first_name, last_name, email, phone=None):
-    cur.execute("""
+    curs.execute("""
     INSERT INTO clients(name, surname, email) VALUES (%s, %s, %s) RETURNING id;    
     """, (first_name, last_name, email))
-    id_ = cur.fetchone()[0]
+    id_ = curs.fetchone()[0]
     if phone:
-        cur.execute("""
+        curs.execute("""
         INSERT INTO phones(phone_, client_id) VALUES (%s, %s);
         """, (phone, id_))
         conn.commit()
@@ -39,7 +39,7 @@ def add_client(conn, first_name, last_name, email, phone=None):
 
 # Функция, позволяющая добавить телефон для существующего клиента
 def add_phone(conn, client_id, phone):
-    cur.execute("""
+    curs.execute("""
     INSERT INTO phones(phone_, client_id) VALUES(%s, %s);
     """, (phone, client_id))
     conn.commit()
@@ -49,26 +49,26 @@ def add_phone(conn, client_id, phone):
 # Функция, позволяющая изменить данные о клиенте
 def change_client(conn, id, first_name=None, last_name=None, email=None, old_phone=None, phones=None):
     if first_name:
-        cur.execute('''UPDATE clients SET name=%s  WHERE id=%s;''',
+        curs.execute('''UPDATE clients SET name=%s  WHERE id=%s;''',
                     (first_name, id))
     elif last_name:
-        cur.execute('''UPDATE clients SET surname=%s WHERE id=%s;''',
+        curs.execute('''UPDATE clients SET surname=%s WHERE id=%s;''',
                     (last_name, id))
     elif email:
-        cur.execute('''UPDATE clients SET email=%s WHERE id=%s;''',
+        curs.execute('''UPDATE clients SET email=%s WHERE id=%s;''',
                     (email, id))
     elif old_phone:
-        cur.execute('''UPDATE phones Set phone_=%s WHERE phone_=%s;''', (phones, old_phone))
+        curs.execute('''UPDATE phones Set phone_=%s WHERE phone_=%s;''', (phones, old_phone))
     elif old_phone is None:
         old_phone = input('What phone number to replace?:')
-        cur.execute('''UPDATE phones Set phone_=%s WHERE phone_=%s;''', (phones, old_phone))
+        curs.execute('''UPDATE phones Set phone_=%s WHERE phone_=%s;''', (phones, old_phone))
     conn.commit()
     print('Customer data changed')
 
 
 # Функция, позволяющая удалить существующего клиента
 def delete_client(conn, client_id):
-    cur.execute("""
+    curs.execute("""
     DELETE FROM phones WHERE client_id=%s;
     DELETE FROM clients WHERE id=%s;   
     """, (client_id, client_id))
@@ -78,17 +78,17 @@ def delete_client(conn, client_id):
 
 # Функция, позволяющая найти клиента по его данным (имени, фамилии, email-у или телефону)
 def find_client(conn, first_name=None, last_name=None, email=None, phone=None):
-    cur.execute("""
+    curs.execute("""
     SELECT name, surname, email, phone_ FROM clients
     LEFT JOIN phones p ON clients.id = p.client_id
     WHERE name=%s OR surname=%s OR email=%s OR phone_=%s;""", (first_name, last_name, email, phone))
-    print(cur.fetchall())
+#    print(curs.fetchall())
     conn.commit()
-    print(cur.fetchall())
+#    print(curs.fetchall())
 
 
 with psycopg2.connect(host="localhost", database="postgres", user="postgres", password="12345678", port="5432") as conn:
-    with conn.cursor() as cur:
+    with conn.cursor() as curs:
         create_db(conn)
         add_client(conn, 'Иван', 'Петров', 'petrov@bk.ru', '+79041222333')
         add_client(conn, 'Мария', 'Сидорова', 'sidorova@bk.ru', '+79084555666')
