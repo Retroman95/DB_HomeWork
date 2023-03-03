@@ -82,9 +82,8 @@ def find_client(conn, first_name=None, last_name=None, email=None, phone=None):
     SELECT name, surname, email, phone_ FROM clients
     LEFT JOIN phones p ON clients.id = p.client_id
     WHERE name=%s OR surname=%s OR email=%s OR phone_=%s;""", (first_name, last_name, email, phone))
-#    print(curs.fetchall())
     conn.commit()
-#    print(curs.fetchall())
+    return curs.fetchall()
 
 
 with psycopg2.connect(host="localhost", database="postgres", user="postgres", password="12345678", port="5432") as conn:
