@@ -41,7 +41,7 @@ def add_client(conn, name, last_name, email, phone=None):
             INSERT INTO phones(phone_, client_id) VALUES (%s, %s);
             """, (phone, user))
             conn.commit()
-        return print("Данные добавлены")
+        return "Данные добавлены"
 
 
 # Функция, позволяющая добавить телефон для существующего клиента
@@ -49,8 +49,8 @@ def add_phone(conn, client_id, phone):
     with conn.cursor() as curs:
         curs.execute("""
             SELECT phone_ from phones
-            WHERE id = %s
-            """, (client_id,))
+            WHERE phone_ = %s
+            """, (phone,))
         if curs.fetchone():
             return "Данный номер уже есть"
         if not curs.fetchone():
@@ -60,7 +60,7 @@ def add_phone(conn, client_id, phone):
         """, (phone, client_id))
 
         conn.commit()
-    return print("Номер текущего клиента добавлен")
+    return "Номер текущего клиента добавлен"
 
 
 
@@ -87,7 +87,7 @@ def change_client(conn, id, name=None, last_name=None, email=None, old_phone=Non
         WHERE id=%s
         """, (name, last_name, email, id))
         conn.commit()
-        return print("Данные клиента изменены")
+        return "Данные клиента изменены"
 
 
 # Функция, позволяющая удалить существующего клиента
@@ -97,7 +97,7 @@ def delete_client(conn, client_id):
     DELETE FROM clients WHERE id=%s;   
     """, (client_id, client_id))
     conn.commit()
-    return print("Запись о клиенте удалена")
+    return "Запись о клиенте удалена"
 
 # Функция, позволяющая удалить телефонный номер клиента
 def delete_phone(name, last_name):
@@ -108,7 +108,8 @@ def delete_phone(name, last_name):
     curs.execute('''
     DELETE FROM phones WHERE id=%s;
     ''', (res,))
-    return print("Номер удалён")
+    conn.commit()
+    return "Номер удалён"
 
 # Функция, позволяющая найти клиента по его данным (имени, фамилии, email-у или телефону)
 def find_client(conn, name=None, last_name=None, email=None, phone=None):
