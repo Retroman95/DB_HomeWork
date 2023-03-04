@@ -1,7 +1,7 @@
 create table if not exists artist_list(
 	id serial primary key,
-	Name varchar(255) not null,
-	Alias varchar(80) not null);
+	artist_name varchar(255) not null,
+	alias varchar(80) not null);
 	
 create table if not exists artist_in_genre(
 	id serial primary key,
@@ -10,7 +10,7 @@ create table if not exists artist_in_genre(
 	
 create table if not exists Genre_list(
 	id serial primary key, 
-	Genre_Name  varchar(80) not null,
+	genre_name  varchar(80) not null reference artist_in_genre(genre_id);
 							
 create table if not exists artist_album(
 	id  serial primary key,
@@ -23,7 +23,7 @@ create table if not exists album_List (
 	release_date varchar(80) not null);
 	
 create table if not exists Track_List (
-	id serial primary key,
+	id serial primary key references collection_album_track(track_id),
 	album_id integer references album_List(id)
 	track_name varchar(80) not null,
 	track_time varchar(80) not null);
@@ -35,6 +35,5 @@ create table if not exists collection_List(
 							
 create table if not exists collection_album_track(
 	id serial primary key,
-	collection_id integer not null references collection_List(id),
-	album_id integer not null references album_List(id);
+	collection_id integer not null references collection_list(id),
 	track_id integer not null references Track_List(id));
