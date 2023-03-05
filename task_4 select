@@ -1,0 +1,74 @@
+-- количество исполнителей в каждом жанре;
+    SELECT T.name, count(AG.artist_id)
+    FROM genre T
+    JOIN  artist_genre AG ON T.id = AG.genre_id
+    GROUP BY T.name
+
+
+-- количество треков, вошедших в альбомы 2019-2020 годов;
+    SELECT A.name, A.releasedate, count(S.id)
+    FROM album A
+    JOIN track S ON A.id = s.album_id
+    WHERE A.releasedate between '2019-01-01' AND '2020-12-31'
+    GROUP BY a.name, a.releasedate
+
+    
+-- средняя продолжительность треков по каждому альбому;
+    SELECT  a.name, round(AVG(s.tracklength), 2)
+    FROM album a
+    JOIN track s ON a.id = s.album_id
+    GROUP BY a.name
+
+-- все исполнители, которые не выпустили альбомы в 2020 году;
+    SELECT p.name, a.releasedate
+    FROM artist p
+    JOIN album_artist ar ON p.id = ar.artist_id
+    JOIN album a ON ar.album_id = a.id
+    WHERE a.releasedate NOT BETWEEN '2020-01-01' AND '2020-12-31'
+
+---- названия сборников, в которых присутствует конкретный исполнитель (выберите сами);
+    SELECT DISTINCT c.name
+    FROM collections c
+    JOIN collections_album_track sc ON c.id = sc.collections_id
+    JOIN track s ON sc.track_id = s.id
+    JOIN album a ON s.album_id = a.id
+    JOIN album_artist ap ON a.id = ap.album_id
+    JOIN artist p ON ap.artist_id = p.id
+    WHERE p.name LIKE 'Nirvana'
+
+-- название альбомов, в которых присутствуют исполнители более 1 жанра;
+     SELECT a.name
+     FROM album a
+     JOIN album_artist ap ON a.id = ap.album_id
+     JOIN artist p ON ap.artist_id = p.id
+     JOIN artist_genre gp ON p.id = gp.artist_id
+     GROUP BY p.name, a.name
+     HAVING count(gp.genre_id) > 1
+
+-- наименование треков, которые не входят в сборники;
+    SELECT s.name
+    FROM track s
+    LEFT JOIN collections_album_track sc ON s.id = sc.track_id
+    where sc.track_id IS NULL
+
+-- исполнителя(-ей), написавшего самый короткий по продолжительности трек (теоретически таких треков может быть несколько);
+
+    SELECT p.name, s.tracklength
+    FROM artist p
+    JOIN album_artist ap ON p.id = ap.artist_id
+    JOIN album a ON ap.album_id = a.id
+    JOIN track s ON a.id = s.album_id
+    WHERE s.tracklength IN (SELECT MIN(tracklength) FROM track)
+
+-- название альбомов, содержащих наименьшее количество треков.
+    SELECT a.name, count(s.id)
+    FROM album a
+    JOIN track s  ON a.id = s.album_id
+    GROUP BY a.name 
+    HAVING count(s.id) in (
+        SELECT count(s.id)
+        FROM album a
+        JOIN track s  ON a.id = s.album_id
+        GROUP BY a.name
+        ORDER BY count(s.id)
+        LIMIT 1)
